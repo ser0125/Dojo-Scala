@@ -62,8 +62,16 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     bodyAsJson.validate[Place] match {
       case success: JsSuccess[Place] => {
-        val placeName = success.get.name
-        Ok("El lugar "+ placeName + " se actualizó exitosamente")
+        //Se toman los elementos que cumplen con el "id" ingresado
+        var places2 = places.filter(_.id == success.get.id)
+        places = places.filterNot(_.id == success.get.id)
+        for(placeIterator <- places2)
+        {
+          var place = Place(placeIterator.id, success.get.name)
+          places = places :+ place
+        }
+        val placeId = success.get.id
+        Ok("El lugar "+ placeId + " se actualizó exitosamente")
       }
       case JsError(error) => BadRequest("No se pudo actualizar el lugar!" + error)
     }
