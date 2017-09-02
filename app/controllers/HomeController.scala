@@ -6,6 +6,7 @@ import models.Place
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
+import play.api.mvc.Result._
 import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 /**
@@ -52,9 +53,17 @@ class HomeController @Inject() (val controllerComponents: ControllerComponents) 
     bodyAsJson.validate[Place] match {
       case success: JsSuccess[Place] =>
         val place = success.get
-        places = places :+ place
+
+        val message: Option[String] = {
+          places.find(_.id == success.get.id) match{
+            case Some(q) =>  Option("Ya existe el lugar que desea ingresar")
+            case None => places = places :+ place
+              Option("Ingreso exitoso")
+          }
+        }
+        
         Ok(Json.toJson(
-          Map("message" -> "Ingreso exitoso")
+          Map("message" -> message)
         ))
       case JsError(error) => BadRequest(Json.toJson(
         Map("error" -> "Bad Parameters", "description" -> "Missing a parameter")
