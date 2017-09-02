@@ -12,8 +12,21 @@ import play.api.libs.functional.syntax._
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
+/*Controller to handle the actions*/
+/*action: DefaultActionBuilder,
+parse: PlayBodyParsers,
+messagesApi: MessagesApi*/
 @Singleton
-class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class HomeController @Inject() (val controllerComponents: ControllerComponents) extends BaseController {
+
+  //val places2: List[Place] = Place(1, "Robledo") :: Place(2, "Medellin") :: Place(3, "Barbosa") :: Nil
+
+  var places = List(
+    Place(1, "Robledo"),
+    Place(2, "Medellín"),
+    Place(3, "Barbosa")
+  )
+
 
   /**
     * Create an Action to render an HTML page.
@@ -23,63 +36,54 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     * a path of `/`.
     */
 
-  var place1 = Place(1, "UdeA")
-  var places = List(
-    Place(1, "Robledo"),
-    Place(2, "Medellín"),
-    Place(3, "Barbosa")
-  )
-
-  implicit val placeJson = Json.writes[Place]
-
-
-  def addPlace() = Action { implicit request =>
-    val bodyAsJson = request.body.asJson.get
-
-    bodyAsJson.validate[Place] match {
-      case success: JsSuccess[Place] => {
-        val placeName = success.get.name
-        var place = success.get
-        places = places :+ place
-        Ok("El lugar "+ placeName + " se ingresó exitosamente")
-      }
-      case JsError(error) => BadRequest("No se pudo ingresar el lugar!")
-    }
+  def index = Action {
+    Ok(views.html.index())
   }
+
 
   def listPlaces = Action {
     val json = Json.toJson(places)
     Ok(json)
   }
 
-  def removePlace(id:Int) = Action{
+  def addPlace() = Action { implicit request =>
+    val bodyAsJson = request.body.asJson.get
+
+    bodyAsJson.validate[Place] match {
+      case success: JsSuccess[Place] =>
+        val place = success.get
+        places = places :+ place
+        Ok(Json.toJson(
+          Map("message" -> "Ingreso exitoso")
+        ))
+      case JsError(error) => BadRequest(Json.toJson(
+        Map("error" -> "Bad Parameters", "description" -> "Missing a parameter")
+      ))
+    }
+  }
+
+  def removePlace(id:Int) = Action {
     places = places.filterNot(_.id == id)
-    Ok("Eliminado correctamente")
+    Ok(Json.toJson(
+      Map("message" -> "Borrado exitoso")
+    ))
   }
 
   def updatePlace() = Action { implicit request =>
     val bodyAsJson = request.body.asJson.get
 
     bodyAsJson.validate[Place] match {
-      case success: JsSuccess[Place] => {
-        //Se toman los elementos que cumplen con el "id" ingresado
-        var places2 = places.filter(_.id == success.get.id)
-        places = places.filterNot(_.id == success.get.id)
-        for(placeIterator <- places2)
-        {
-          var place = Place(placeIterator.id, success.get.name)
-          places = places :+ place
-        }
-        val placeId = success.get.id
-        Ok("El lugar "+ placeId + " se actualizó exitosamente")
-      }
-      case JsError(error) => BadRequest("No se pudo actualizar el lugar!" + error)
+      case success: JsSuccess[Place] =>
+        var newPlace = Place(success.get.id, success.get.name)
+        places = places.map(x => if (x.id == success.get.id) newPlace else x)
+        Ok(Json.toJson(
+          Map("message" -> "Actualizacion exitosa")
+        ))
+      case e:JsError => BadRequest(Json.toJson(
+        Map("error" -> "No se pudo actualizar", "description" -> "Bad parameters")))
     }
   }
 
-  def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
-  }
 
 }
 
