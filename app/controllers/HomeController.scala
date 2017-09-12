@@ -47,8 +47,16 @@ class HomeController @Inject() (val controllerComponents: ControllerComponents) 
     Ok(json)
   }
 
+  def specificPlace (id:Int) = Action {
+
+    val aux = places.filter(_.id == id)
+    val json = Json.toJson(places)
+    Ok(json)
+  }
+
   def addPlace() = Action { implicit request =>
     val bodyAsJson = request.body.asJson.get
+  
 
     bodyAsJson.validate[Place] match {
       case success: JsSuccess[Place] =>

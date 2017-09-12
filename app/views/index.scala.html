@@ -2,4 +2,10 @@
 
 @main("Welcome to Play") {
   <h1>Welcome to Play!</h1>
+<form action="@routes.HomeController.addPlace()" method="POST">
+  City ID: <input name="city_id"> <br />
+  City name: <input name="city_name"> <br />
+  <input type="submit" value="save">
+</form>
+
 }

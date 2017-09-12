@@ -6,6 +6,8 @@
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index
 GET     /places                     controllers.HomeController.listPlaces
+GET     /specific                   controllers.HomeController.specificPlace(id:Int)
++ nocsrf
 POST    /add                        controllers.HomeController.addPlace
 PUT     /update                     controllers.HomeController.updatePlace
 DELETE  /remove/:id                 controllers.HomeController.removePlace(id:Int)

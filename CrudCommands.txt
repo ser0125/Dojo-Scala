@@ -1,0 +1,3 @@
+curl --header "Content-type: application/json" --request POST --data '{"id": 12, "name": "Cartagena"}' http://localhost:9000/add
+curl --header "Content-type: application/json" --request DELETE http://localhost:9000/remove/:12
+curl --header "Content-type: application/json" --request PUT --data '{"id": 3, "name": "Cartagena"}' http://localhost:9000/update
