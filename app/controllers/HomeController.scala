@@ -23,9 +23,9 @@ class HomeController @Inject() (val controllerComponents: ControllerComponents) 
   //val places2: List[Place] = Place(1, "Robledo") :: Place(2, "Medellin") :: Place(3, "Barbosa") :: Nil
 
   var places = List(
-    Place(1, "Robledo"),
-    Place(2, "Medellín"),
-    Place(3, "Barbosa")
+    Place(1, "Robledo",None),
+    Place(2, "Medellín",Some("A beutifull city")),
+    Place(3, "Barbosa",Some("So hot"))
   )
 
 
@@ -91,7 +91,7 @@ class HomeController @Inject() (val controllerComponents: ControllerComponents) 
 
     bodyAsJson.validate[Place] match {
       case success: JsSuccess[Place] =>
-        var newPlace = Place(success.get.id, success.get.name)
+        var newPlace = Place(success.get.id, success.get.name, success.get.description)
         places = places.map(x => if (x.id == success.get.id) newPlace else x)
         Ok(Json.toJson(
           Map("message" -> "Actualizacion exitosa")
